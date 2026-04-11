@@ -4,11 +4,9 @@
 <img src="screenshots/banner.svg" alt="Brainsplain Banner" width="860"/>
 
 <br/><br/>
-
 <p align="center">
   <em>"Turn complex jargon into crystal clear concepts. Like a pop-up book for your brain."</em>
 </p>
-
 <br/>
 
 <a href="https://brainsplain-ai.onrender.com/" target="_blank">
