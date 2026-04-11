@@ -13,7 +13,11 @@ app = Flask(__name__, static_folder='static', static_url_path='', template_folde
 CORS(app)
 
 # Configure Gemini
-api_key = os.environ.get("Gemini_API_KEY", "AIzaSyCJbzkXIj9hnwYbTcigVekNTXqtMSKSElI")
+api_key = os.environ.get("Gemini_API_KEY")
+
+if not api_key:
+    # Handle missing API key gracefully
+    pass
 genai.configure(api_key=api_key)
 
 # Define prompts based on age levels
