@@ -50,7 +50,7 @@ def explain_topic():
     system_instruction = SYSTEM_PROMPTS[level]
 
     try:
-        if api_key == "AIzaSyCJbzkXIj9hnwYbTcigVekNTXqtMSKSElI" or api_key == "your_api_key_here":
+        if api_key == "AIzaSyC609sA1GiDZeRRtuCA0CuG6poIetaks-E" or api_key == "your_api_key_here":
             # Just in case the user has not replaced the dummy google key
             pass
 
