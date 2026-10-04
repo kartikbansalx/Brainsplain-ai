@@ -83,7 +83,11 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             div.addEventListener('click', () => {
                 topicInput.value = entry.topic;
-                showExplanation(entry.explanation, entry.level, { keywords: entry.keywords || [], sentiment: entry.sentiment || 'Neutral', entities: entry.entities || [] });
+                showExplanation(entry.explanation, entry.level, {
+                    keywords: entry.keywords || [],
+                    sentiment: entry.sentiment || 'Neutral',
+                    entities: entry.entities || []
+                });
                 toggleHistory();
             });
             historyList.appendChild(div);
@@ -107,17 +111,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    const renderNlpInsights = (insights) => {
-        if (!insights || (!insights.keywords?.length && !insights.entities?.length && !insights.sentiment)) {
-            nlpMetadata.classList.add('hidden');
+    const renderNlpInsights = (insights = null) => {
+        if (!nlpMetadata || !keywordList || !sentimentBadge || !entityList) {
+            console.warn('NLP metadata elements not found in DOM');
             return;
         }
 
-        nlpMetadata.classList.remove('hidden');
-
-        const keywords = insights.keywords || [];
-        const entities = insights.entities || [];
-        const sentiment = insights.sentiment || 'Neutral';
+        const keywords = insights?.keywords || [];
+        const entities = insights?.entities || [];
+        const sentiment = insights?.sentiment || 'Neutral';
 
         keywordList.innerHTML = keywords.length
             ? keywords.map(word => `<span class="bg-primary/10 text-primary px-2 py-1 rounded-full text-xs font-bold">${word}</span>`).join('')
@@ -128,12 +130,15 @@ document.addEventListener('DOMContentLoaded', () => {
             : sentiment === 'Negative'
                 ? 'bg-red-100 text-red-700'
                 : 'bg-yellow-100 text-yellow-700';
+
         sentimentBadge.className = `inline-flex rounded-full px-3 py-1 text-xs font-bold ${sentimentColor}`;
         sentimentBadge.textContent = sentiment;
 
         entityList.innerHTML = entities.length
             ? entities.map(entity => `<span class="bg-surface-container px-2 py-1 rounded-full text-xs font-bold text-on-surface">${entity}</span>`).join('')
             : '<span class="text-xs text-on-surface-variant">No named entities found</span>';
+
+        nlpMetadata.classList.remove('hidden');
     };
 
     const showExplanation = (text, level, insights = null) => {
@@ -174,23 +179,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!res.ok) {
                 showError(data.error || 'Something went wrong.');
-            } else {
-                showExplanation(data.explanation, currentLevel, {
-                    keywords: data.keywords || [],
-                    sentiment: data.sentiment || 'Neutral',
-                    entities: data.entities || []
-                });
-
-                saveToHistory({
-                    topic,
-                    level: currentLevel,
-                    explanation: data.explanation,
-                    keywords: data.keywords || [],
-                    sentiment: data.sentiment || 'Neutral',
-                    entities: data.entities || [],
-                    timestamp: new Date().toLocaleDateString()
-                });
+                return;
             }
+
+            showExplanation(data.explanation, currentLevel, {
+                keywords: data.keywords || [],
+                sentiment: data.sentiment || 'Neutral',
+                entities: data.entities || []
+            });
+
+            saveToHistory({
+                topic,
+                level: currentLevel,
+                explanation: data.explanation,
+                keywords: data.keywords || [],
+                sentiment: data.sentiment || 'Neutral',
+                entities: data.entities || [],
+                timestamp: new Date().toLocaleDateString()
+            });
         } catch (error) {
             console.error('Fetch error:', error);
             showError('Could not connect to the Brainsplain server. Is it running?');
