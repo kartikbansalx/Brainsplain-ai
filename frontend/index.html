@@ -54,8 +54,10 @@
 </head>
 <body class="bg-background text-on-background min-h-screen flex flex-col overflow-x-hidden relative">
 
+<!-- History Drawer Modal Background overlay -->
 <div id="history-overlay" class="fixed inset-0 bg-black/20 z-40 hidden transition-opacity duration-300 opacity-0"></div>
 
+<!-- History Drawer -->
 <div id="history-drawer" class="fixed top-0 right-0 h-full w-80 bg-surface-container-lowest shadow-[-10px_0_30px_rgba(0,0,0,0.05)] z-50 transform translate-x-full transition-transform duration-300">
     <div class="p-6 border-b border-surface-container flex justify-between items-center">
         <h2 class="headline-font font-bold text-xl text-primary">History</h2>
@@ -64,6 +66,7 @@
         </button>
     </div>
     <div id="history-list" class="p-6 overflow-y-auto flex-grow flex flex-col gap-4">
+        <!-- History items will be dynamically inserted here -->
         <p class="text-on-surface-variant text-sm text-center mt-4 hidden" id="empty-history-msg">No explanations yet.</p>
     </div>
 </div>
@@ -103,7 +106,8 @@
                 <div class="relative">
                     <textarea id="topic-input" class="w-full h-48 bg-surface-container-low border-none rounded-lg p-6 text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary-container/80 outline-none resize-none" placeholder="Paste a complex topic... e.g. 'How does photosynthesis work?'"></textarea>
                 </div>
-
+                
+                <!-- Level Selector -->
                 <div class="flex items-center gap-4 px-2">
                     <span class="text-sm font-bold text-on-surface-variant">Explain for:</span>
                     <div class="flex bg-surface-container-low rounded-lg p-1 gap-1" id="level-selector">
@@ -121,6 +125,7 @@
         </div>
     </section>
 
+    <!-- Results Section -->
     <section class="w-full transition-all duration-500" id="result-section">
         <div class="bg-surface-container-lowest border-2 border-dashed border-surface-container-highest rounded-xl p-12 flex flex-col items-center justify-center text-center space-y-4 min-h-[300px]" id="empty-state">
             <div class="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center text-outline-variant">
@@ -132,6 +137,7 @@
             </div>
         </div>
 
+        <!-- Loaded State (hidden initially) -->
         <div class="hidden bg-surface-container-lowest border border-surface-container rounded-xl p-10 flex flex-col items-start text-left gap-6 shadow-[0px_20px_40px_rgba(45,47,47,0.04)]" id="explanation-container">
             <div class="flex justify-between items-center w-full border-b border-surface-container pb-4">
                 <div class="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-2" id="explanation-badge">
@@ -142,25 +148,9 @@
                     <span class="material-symbols-outlined text-[18px]">content_copy</span> Copy
                 </button>
             </div>
-
-            <div class="w-full" id="nlp-metadata">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="bg-surface-container-low rounded-xl p-4">
-                        <div class="text-[10px] uppercase tracking-[0.12em] text-on-surface-variant font-bold mb-2">Keywords</div>
-                        <div class="flex flex-wrap gap-2" id="keyword-list"></div>
-                    </div>
-                    <div class="bg-surface-container-low rounded-xl p-4">
-                        <div class="text-[10px] uppercase tracking-[0.12em] text-on-surface-variant font-bold mb-2">Sentiment</div>
-                        <div id="sentiment-badge" class="inline-flex rounded-full px-3 py-1 text-xs font-bold"></div>
-                    </div>
-                    <div class="bg-surface-container-low rounded-xl p-4">
-                        <div class="text-[10px] uppercase tracking-[0.12em] text-on-surface-variant font-bold mb-2">Entities</div>
-                        <div class="flex flex-wrap gap-2" id="entity-list"></div>
-                    </div>
-                </div>
+            <div class="prose prose-lg max-w-none w-full text-on-surface font-body leading-relaxed whitespace-pre-line" id="result-text">
+                <!-- Content injected here -->
             </div>
-
-            <div class="prose prose-lg max-w-none w-full text-on-surface font-body leading-relaxed whitespace-pre-line" id="result-text"></div>
         </div>
     </section>
 

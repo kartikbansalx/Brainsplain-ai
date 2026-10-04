@@ -1,44 +1,44 @@
 import os
-
+import time
 import google.generativeai as genai
-from dotenv import load_dotenv
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
-
-from nlp_utils import analyze_sentiment, extract_entities, extract_keywords
+from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
 
 app = Flask(__name__, static_folder='static', static_url_path='', template_folder='templates')
+# Allow cross-origin requests
 CORS(app)
 
 # Configure Gemini
 api_key = os.environ.get("Gemini_API_KEY")
-if api_key:
-    genai.configure(api_key=api_key)
 
+if not api_key:
+    # Handle missing API key gracefully
+    pass
+genai.configure(api_key=api_key)
+
+# Define prompts based on age levels
 SYSTEM_PROMPTS = {
-    "Age 5": "You are an expert at explaining complex topics simply. When given a topic, explain it as if the user is 5 years old. Use simple words, fun analogies, and at least 2 relevant emojis. Keep it warm, friendly, and easy to understand.",
-    "Age 10": "You are an expert at explaining complex topics simply. Explain the following topic as if the user is 10 years old. Use clear language, relatable analogies, and a few relevant emojis. Keep it engaging and easy to follow.",
-    "Teen": "You are an expert at explaining complex topics simply. Explain the following topic for a teenager. The explanation should be accurate, conversational, and completely free of obscure jargon. Use clear structure and friendly tone."
+    "Age 5": "You are an expert at explaining complex topics simply. When given a topic, explain it as if the user is 5 years old. Use simple words, fun analogies, and at least 2 relevant emojis. Keep it under 200 words. Never use jargon. Start with a one-sentence hook that makes the topic feel exciting.",
+    "Age 10": "You are an expert at explaining complex topics simply. Explain the following topic as if the user is 10 years old. Use clear language, relatable analogies, and a few relevant emojis. Avoid overly technical jargon but introduce simple concepts clearly. Keep it under 250 words. Start with a hook.",
+    "Teen": "You are an expert at explaining complex topics simply. Explain the following topic for a teenager. The explanation should be accurate, conversational, and completely free of obscure jargon. Use clear analogies to explain mechanisms. Keep it under 300 words. Start with an engaging intro."
 }
-
 
 @app.route('/')
 def serve_frontend():
     return render_template('index.html')
 
-
 @app.route('/api/health', methods=['GET'])
 def health_check():
     return jsonify({"status": "healthy"}), 200
 
-
 @app.route('/api/explain', methods=['POST'])
 def explain_topic():
-    data = request.get_json(silent=True) or {}
-    topic = (data.get('topic') or '').strip()
+    data = request.json
+    topic = data.get('topic')
     level = data.get('level', 'Age 5')
 
     if not topic:
@@ -47,38 +47,26 @@ def explain_topic():
     if level not in SYSTEM_PROMPTS:
         return jsonify({"error": "Invalid level selected"}), 400
 
-    if not api_key:
-        return jsonify({"error": "Gemini API key is missing. Set Gemini_API_KEY in your environment."}), 500
-
     system_instruction = SYSTEM_PROMPTS[level]
 
     try:
+        # Initialize the model with the system prompt
         model = genai.GenerativeModel(
             model_name='gemini-flash-latest',
             system_instruction=system_instruction
         )
-
-        response = model.generate_content(f"Please explain this topic clearly: {topic}")
-        explanation = response.text.strip()
-
-        keywords = extract_keywords(topic)
-        sentiment = analyze_sentiment(topic)
-        entities = extract_entities(topic)
-
-        return jsonify({
-            "explanation": explanation,
-            "keywords": keywords,
-            "sentiment": sentiment,
-            "entities": entities
-        })
+        
+        response = model.generate_content(
+            f"Please explain this: {topic}"
+        )
+        return jsonify({"explanation": response.text})
 
     except Exception as e:
         error_msg = str(e)
         print(f"Error calling Gemini API: {error_msg}")
         return jsonify({"error": f"API Error: {error_msg}"}), 500
 
-
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
-    print(f"Starting Brainsplain Backend Server on http://localhost:{port}")
+    print(f"Starting ELI5 Backend Server on http://localhost:{port}")
     app.run(debug=True, host='0.0.0.0', port=port)

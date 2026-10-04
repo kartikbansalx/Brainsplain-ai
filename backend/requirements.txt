@@ -3,5 +3,3 @@ flask-cors
 google-generativeai
 python-dotenv
 gunicorn
-nltk
-textblob
